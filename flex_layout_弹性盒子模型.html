@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="cn-ZH">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<title>flex弹性盒子模型</title>
+	<style>
+		*{margin:0; padding:0;}
+		body{font:1rem/2rem "微软雅黑";color:#555;}
+		ul{list-style:none;}
+		a{text-decoration:none; color:inherit;}
+		section::after{content:"";display:table;clear:both;}
+		.sidenav{position:fixed; left:-200px; top:0; width:200px; height:100%; background:#333; text-align:left; color:#fff; transition:.5s;}
+		.sidenav dl{width:100%; height:100%;}
+		.sidenav dt{margin-top:60px;}
+		.sidenav dl a{display:block; font:1rem/36px "微软雅黑"; text-indent:3.5em;}
+		.sidenav dt a{font:20px/48px "微软雅黑"; text-indent:1.5em;}
+		.sidenav .tip{position:absolute; left:100%; top:calc(50% - 50px); width:30px; height:100px; background: #333; text-align:center; line-height:100px;}
+		.sidenav:hover{left:0;}
+		.sidenav a:hover{background:#f0f0f0; color:#333;}
+
+		@media screen and (min-width:750px) {
+			.container{max-width:768px;}
+		}
+		.container{max-width:1200px; margin:0 auto; text-align:center; background:#e8e8e8;}
+
+		.part h2,
+		.part h3,
+		.part p{float:left; width:100%;}
+		.part h2{padding-top:30px; font:bold 2.25rem/60px "微软雅黑"; color:#000; /* background:deeppink; letter-spacing:.2em;*/}
+		.part h3{margin:30px 0 50px; font:bold 1.25rem/60px "微软雅黑";  color:#fff; background:#333;}
+		.part p{padding:0 100px 20px; line-height:2em; text-align:left; box-sizing:border-box;}
+
+		.part div{float:left; width:500px; margin:0 50px 50px;}
+
+		.part div h4{font:1.2rem/50px "微软雅黑"; color:#e0e0e0; background:#2e89bf; white-space:nowrap;}
+		.part div h4>span{margin-left:15px; font:18px/50px "微软雅黑"; color:#fff;}
+		.part div>span{display:block; padding:10px; line-height:2em; text-align:left;}
+
+		.part ul{display:flex; min-height:300px; background:#fff; box-shadow:0 0 6px #b5b5b5;}
+		.part li{font:1.2rem/120px "微软雅黑"; color:#fff; text-shadow:0 0 6px #333; box-shadow:0 0 10px #555;}
+		.part li:nth-child(1){background: orange;}
+		.part li:nth-child(2){background: skyblue;}
+		.part li:nth-child(3){background: hotpink;}
+		.part li:nth-child(4){background: mediumorchid;}
+		.part li:nth-child(5){background: tomato;}
+		.part li:nth-child(6){background: sandybrown;}
+		.part li:nth-child(7){background: mediumseagreen;}
+
+		/*========== part1 ==========*/
+		.part1 li{width:110px; height:110px;}
+		/* flex-direction 主轴的方向 */
+		.demo1{flex-direction: row;}
+		.demo2{flex-direction: row-reverse;}
+		.demo3{flex-direction: column;}
+		.demo4{flex-direction: column-reverse;}
+		/* flex-wrap 项目换行 */
+		.demo5{flex-wrap: nowrap;}
+		.demo6{flex-wrap: wrap;}
+		.demo7{flex-wrap: wrap-reverse;}
+		/* flex-flow 复合属性 */
+		.demo8{flex-flow: row wrap;}
+		.demo9{flex-flow: row wrap-reverse;}
+		/* justify-content 项目在主轴的对齐方式 */
+		.demo10{justify-content: flex-start;}
+		.demo11{justify-content: flex-end;}
+		.demo12{justify-content: center;}
+		.demo13{justify-content: space-between;}
+		.demo14{justify-content: space-around;}
+		/* align-items 项目在交叉轴的对齐方式 */
+		.demo15{align-items:stretch;}
+		.demo16{align-items:flex-start;}
+		.demo17{align-items:flex-end;}
+		.demo18{align-items:center;}
+		.demo19{align-items:baseline;}
+		/* align-centent 多行项目在交叉轴的对齐方式 */
+		.demo20{flex-wrap:wrap; align-content:stretch;}
+		.demo21{flex-wrap:wrap; align-content:flex-start;}
+		.demo22{flex-wrap:wrap; align-content:flex-end;}
+		.demo23{flex-wrap:wrap; align-content:center;}
+		.demo24{flex-wrap:wrap; align-content:space-between;}
+		.demo25{flex-wrap:wrap; align-content:space-around;}
+
+
+		/*========== part2 ==========*/
+		.part2 li{width:100px; height:110px;}
+		/* flex-grow 容器有剩余空间时 按flex-grow值计算的空间分配给项目 */
+		.demo26 li,
+		.demo28 li{width:auto;}  /* 项目按内容撑开 */
+		.demo30 li{width:0;}  /* 浏览器分配值不正确时 */
+		/* flex-grow 值为0时不分配 */
+		.demo26 li{flex-grow:0;}
+		.demo27 li{flex-grow:0;}
+		/* flex-grow 值都为1时平均分配 */
+		.demo28 li{flex-grow:1;}
+		.demo29 li{flex-grow:1;}
+		/* 有剩余空间时按 flex-grow 值分配 */
+		.demo30 li:nth-child(1){flex-grow:1;}
+		.demo30 li:nth-child(2){flex-grow:1;}
+		.demo30 li:nth-child(3){flex-grow:3;}
+		.demo31 li:nth-child(1){flex-grow:1;}
+		.demo31 li:nth-child(2){flex-grow:1;}
+		.demo31 li:nth-child(3){flex-grow:3;}
+		/* 超出容器范围按 flex-shrink 值缩小项目 */
+		.demo32 li:nth-child(1){width:200px; flex-shrink:1;}
+		.demo32 li:nth-child(2){width:200px; flex-shrink:1;}
+		.demo32 li:nth-child(3){width:300px; flex-shrink:3;}
+		.demo33 li:nth-child(1){width:200px; flex-shrink:0;}
+		.demo33 li:nth-child(2){width:200px; flex-shrink:1;}
+		.demo33 li:nth-child(3){width:300px; flex-shrink:1;}
+		/* flex-basis 定义分配前项目的宽度 */
+		.demo34 li{flex-basis:auto;}
+		.demo35 li{flex-basis:150px;}
+		/* flex 复合属性 */
+		.demo36 li{flex:0 1 auto;}
+		.demo37 li{flex:1 1 200px;}
+		/* align-self 项目在交叉轴的对齐方式 */
+		.demo38 li{align-self:auto;}
+		.demo39 li:nth-child(1){align-self:stretch;}
+		.demo39 li:nth-child(2){align-self:flex-start;}
+		.demo39 li:nth-child(3){align-self:flex-end;}
+		.demo39 li:nth-child(4){align-self:center;}
+		.demo39 li:nth-child(5){align-self:baseline;}
+		.demo39 li:nth-child(6){align-self:baseline;}
+		.demo39 li:nth-child(7){align-self:baseline;}
+		/* order 项目的排序 */
+		.demo40 li:nth-child(1){order:1;}
+		.demo40 li:nth-child(2){order:5;}
+		.demo40 li:nth-child(3){order:7;}
+		.demo40 li:nth-child(4){order:3;}
+		.demo40 li:nth-child(5){order:0;}
+		.demo40 li:nth-child(6){order:-2;}
+		.demo40 li:nth-child(7){order:4;}
+	</style>
+</head>
+<body>
+
+<nav class="sidenav">
+	<dl>
+		<dt><a href="#part1">flex容器属性</a></dt>
+		<dd><a href="#part1_1">flex-direction</a></dd>
+		<dd><a href="#part1_2">flex-wrap</a></dd>
+		<dd><a href="#part1_3">flex-flow</a></dd>
+		<dd><a href="#part1_4">justify-content</a></dd>
+		<dd><a href="#part1_5">align-items</a></dd>
+		<dd><a href="#part1_6">align-content</a></dd>
+		<dt><a href="#part2">flex项目属性</a></dt>
+		<dd><a href="#part2_1">flex-grow</a></dd>
+		<dd><a href="#part2_2">flex-shrink</a></dd>
+		<dd><a href="#part2_3">flex-basis</a></dd>
+		<dd><a href="#part2_4">flex</a></dd>
+		<dd><a href="#part2_5">align-self</a></dd>
+		<dd><a href="#part2_6">order</a></dd>
+	</dl>
+	<span class="tip">》</span>
+</nav>
+
+<section class="container">
+	<!-- part1 start -->
+	<section class="part part1">
+		<h2 id="part1">flex容器属性</h2>
+		<h3 id="part1_1">flex-direction（主轴的方向）</h3>
+		<div>
+			<h4>demo1<span>flex-direction: row;(横向为主轴,默认值)</span></h4>
+			<ul class="demo1">
+				<li>A</li>
+				<li>B</li>
+				<li>C</li>
+				<li>D</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo2<span>flex-direction: row-reverse;(横向为主轴,倒序)</span></h4>
+			<ul class="demo2">
+				<li>A</li>
+				<li>B</li>
+				<li>C</li>
+				<li>D</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo3<span>flex-direction: column;(纵向为主轴)</span></h4>
+			<ul class="demo3">
+				<li>A</li>
+				<li>B</li>
+				<li>C</li>
+				<li>D</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo4<span>flex-direction: column-reverse;(纵向为主轴,倒序)</span></h4>
+			<ul class="demo4">
+				<li>A</li>
+				<li>B</li>
+				<li>C</li>
+				<li>D</li>
+			</ul>
+		</div>
+
+		<h3 id="part1_2">flex-wrap（控制flex容器是单行或者多行）</h3>
+		<div>
+			<h4>demo5<span>flex-wrap: nowrap;(单行,默认值)</span></h4>
+			<ul class="demo5">
+				<li>A</li>
+				<li>B</li>
+				<li>C</li>
+				<li>D</li>
+				<li>E</li>
+				<li>F</li>
+				<li>H</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo6<span>flex-wrap: wrap;(多行)</span></h4>
+			<ul class="demo6">
+				<li>A</li>
+				<li>B</li>
+				<li>C</li>
+				<li>D</li>
+				<li>E</li>
+				<li>F</li>
+				<li>H</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo7<span>flex-wrap: wrap-reverse;(多行倒序)</span></h4>
+			<ul class="demo7">
+				<li>A</li>
+				<li>B</li>
+				<li>C</li>
+				<li>D</li>
+				<li>E</li>
+				<li>F</li>
+				<li>H</li>
+			</ul>
+		</div>
+
+		<h3 id="part1_3">flex-flow（flex-direction和flex-wrap的复合简写形式，默认为row nowrap）</h3>
+		<div>
+			<h4>demo8<span>flex-flow: row wrap;</span></h4>
+			<ul class="demo8">
+				<li>A</li>
+				<li>B</li>
+				<li>C</li>
+				<li>D</li>
+				<li>E</li>
+				<li>F</li>
+				<li>H</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo9<span>flex-flow: row wrap-reverse;</span></h4>
+			<ul class="demo9">
+				<li>A</li>
+				<li>B</li>
+				<li>C</li>
+				<li>D</li>
+				<li>E</li>
+				<li>F</li>
+				<li>H</li>
+			</ul>
+		</div>
+
+		<h3 id="part1_4">justify-content（定义项目在主轴上的对其方式）</h3>
+		<div>
+			<h4>demo10<span>justify-content: flex-start;(左对齐)</span></h4>
+			<ul class="demo10">
+				<li>A</li>
+				<li>B</li>
+				<li>C</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo11<span>justify-content: flex-end;(右对齐)</span></h4>
+			<ul class="demo11">
+				<li>A</li>
+				<li>B</li>
+				<li>C</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo12<span>justify-content: center;(居中对齐)</span></h4>
+			<ul class="demo12">
+				<li>A</li>
+				<li>B</li>
+				<li>C</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo13<span>justify-content: space-between;(两端对齐)</span></h4>
+			<ul class="demo13">
+				<li>A</li>
+				<li>B</li>
+				<li>C</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo14<span>justify-content: space-around;(项目边距相等)</span></h4>
+			<ul class="demo14">
+				<li>A</li>
+				<li>B</li>
+				<li>C</li>
+			</ul>
+		</div>
+
+		<h3 id="part1_5">align-items（定义项目在交叉轴上的对其方式）</h3>
+		<div>
+			<h4>demo15<span>align-items: stretch;(默认值)</span></h4>
+			<ul class="demo15">
+				<li>A</li>
+				<li style="height:180px;line-height:180px">B</li>
+				<li>C</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo16<span>align-items: flex-start;(上端对齐)</span></h4>
+			<ul class="demo16">
+				<li>A</li>
+				<li style="height: 180px;line-height: 180px">B</li>
+				<li>C</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo17<span>align-items: flex-end;(下端对齐)</span></h4>
+			<ul class="demo17">
+				<li>A</li>
+				<li style="height: 180px;line-height: 180px">B</li>
+				<li>C</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo18<span>align-items: center;(居中对齐)</span></h4>
+			<ul class="demo18">
+				<li>A</li>
+				<li style="height: 180px;line-height: 180px">B</li>
+				<li>C</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo19<span>align-items: baseline;(文字基线对齐)</span></h4>
+			<ul class="demo19">
+				<li>A</li>
+				<li style="height: 180px;line-height: 180px;font-size: 30px">B</li>
+				<li style="font-size: 50px">C</li>
+			</ul>
+		</div>
+
+		<h3 id="part1_6">align-content（定义了多跟轴线对齐方式，如果项目只有一根轴线，则不起作用）</h3>
+		<div>
+			<h4>demo20<span>align-content: stretch;(默认值,轴线占满整个交叉轴)</span></h4>
+			<ul class="demo20">
+				<li>A</li>
+				<li>B</li>
+				<li>C</li>
+				<li>D</li>
+				<li>E</li>
+				<li>F</li>
+				<li>H</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo21<span>align-content: flex-start;(顶端对齐)</span></h4>
+			<ul class="demo21">
+				<li>A</li>
+				<li>B</li>
+				<li>C</li>
+				<li>D</li>
+				<li>E</li>
+				<li>F</li>
+				<li>H</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo22<span>align-content: flex-end;(底端对齐)</span></h4>
+			<ul class="demo22">
+				<li>A</li>
+				<li>B</li>
+				<li>C</li>
+				<li>D</li>
+				<li>E</li>
+				<li>F</li>
+				<li>H</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo23<span>align-content: center;(居中对齐)</span></h4>
+			<ul class="demo23">
+				<li>A</li>
+				<li>B</li>
+				<li>C</li>
+				<li>D</li>
+				<li>E</li>
+				<li>F</li>
+				<li>H</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo24<span>align-content: space-between;(两端对齐)</span></h4>
+			<ul class="demo24">
+				<li>A</li>
+				<li>B</li>
+				<li>C</li>
+				<li>D</li>
+				<li>E</li>
+				<li>F</li>
+				<li>H</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo25<span>align-content: space-around;(项目边距相等)</span></h4>
+			<ul class="demo25">
+				<li>A</li>
+				<li>B</li>
+				<li>C</li>
+				<li>D</li>
+				<li>E</li>
+				<li>F</li>
+				<li>H</li>
+			</ul>
+		</div>
+	</section>
+	<!-- part1 end -->
+	<hr style="height: 100px;border: none;background: #fff">
+
+	<!-- part2 start -->
+	<section class="part part2">
+		<h2 id="part2">flex项目属性</h2>
+		<h3 id="part2_1">flex-grow：定义项目放大比例，默认为0，即如果存在剩余空间，也不放大。</h3>
+		<p>分两种情况：<br>
+		情况一、项目没有宽度：项目实际宽度 = 父级宽度*(分配数/分配数总和)<br>
+		情况二、项目有宽度： 项目实际宽度 = 项目自身宽度+剩余宽度*(分配数/分配数总和) <br>
+		tip:  在情况一时，当项目没有被浏览器正确计算宽度的时候，给项目宽度设为0即可。
+		</p>
+		<div>
+			<h4>demo26<span>flex-grow(没有宽度)</span></h4>
+			<ul class="demo26">
+				<li>0</li>
+				<li>0</li>
+				<li>0</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo27<span>flex-grow(有宽度)</span></h4>
+			<ul class="demo27">
+				<li>0</li>
+				<li>0</li>
+				<li>0</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo28<span>flex-grow(没有宽度)</span></h4>
+			<ul class="demo28">
+				<li>1</li>
+				<li>1</li>
+				<li>1</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo29<span>flex-grow(有宽度)</span></h4>
+			<ul class="demo29">
+				<li>1</li>
+				<li>1</li>
+				<li>1</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo30<span>flex-grow(没有宽度)</span></h4>
+			<ul class="demo30">
+				<li>1</li>
+				<li>1</li>
+				<li>3</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo31<span>flex-grow(有宽度)</span></h4>
+			<ul class="demo31">
+				<li>1</li>
+				<li>1</li>
+				<li>3</li>
+			</ul>
+		</div>
+
+		<h3 id="part2_2">flex-shrink：定义项目缩小比例，默认为1，即如果空间不足，该项目将缩小</h3>
+		<p>
+			<b>超出值： 项目宽度总和 - 容器宽度</b> <br>
+				(200+200+300) - 500 = 200 <br>
+			<b>加权总和：每个项目自身宽度 * 自身shrink值 的总和</b> <br>
+				200*1 + 200*1 + 300*3 = 1300 <br>
+			<b>项目收缩值： (项目自身宽度 * 自身shrink / 加权总和) * 超出值</b> <br>
+				(200*1/1300)*200 = 400/13 <br>
+				(200*1/1300)*200 = 400/13 <br>
+				(300*3/1300)*200 = 1800/13 <br>
+			<b>项目实际宽度： 项目自身宽度 - 收缩值</b> <br>
+				200 - (400/13) ≈ 169.23 <br>
+				200 - (400/13) ≈ 169.23 <br>
+				300 - (1800/13) ≈ 161.53
+		</p>
+		<div>
+			<h4>demo32<span>flex-shrink</span></h4>
+			<ul class="demo32">
+				<li>1</li>
+				<li>1</li>
+				<li>1</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo33<span>flex-shrink: 0; 则不缩小</span></h4>
+			<ul class="demo33">
+				<li>0</li>
+				<li>1</li>
+				<li>1</li>
+			</ul>
+		</div>
+
+		<h3 id="part2_3">flex-basis：项目占据的主轴空间(宽度)</h3>
+		<p>
+		浏览器在分配多余空间之前，项目占据的宽度按flex-basis计算，如果flex-basis: auto;则按项目width值计算。如果没有width值，则按项目内容撑开的宽度计算。
+		</p>
+		<div>
+			<h4>demo34<span>flex-basis: auto; 默认值</span></h4>
+			<ul class="demo34">
+				<li>auto</li>
+				<li>auto</li>
+				<li>auto</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo35<span>flex-basis: 150px;</span></h4>
+			<ul class="demo35">
+				<li>150px</li>
+				<li>150px</li>
+				<li>150px</li>
+			</ul>
+		</div>
+
+		<h3 id="part2_4">flex:  flex-grow flex-shrink flex-basis; 复合属性</h3>
+		<div>
+			<h4>demo36<span>flex: 0 1 auto; 默认值</span></h4>
+			<ul class="demo36">
+				<li>A</li>
+				<li>B</li>
+				<li>C</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo37<span>flex: 1 1 200px;</span></h4>
+			<ul class="demo37">
+				<li>A</li>
+				<li>B</li>
+				<li>C</li>
+			</ul>
+		</div>
+
+		<h3 id="part2_5">align-self：定义单个项目在交叉轴上的对齐方式</h3>
+		<p>
+		定义： align-self属性允许单个项目有与其他项目不一样的对齐方式，可覆盖align-items属性。默认值为auto，表示继承父元素的align-items属性，如果没有父元素，则等同于stretch。 <br>
+		属性值： stretch | flex-start | flex-end | center | baseline ;
+		</p>
+		<div>
+			<h4>demo38<span>align-self: auto;</span></h4>
+			<ul class="demo38">
+				<li>A</li>
+				<li>B</li>
+				<li>C</li>
+				<li>D</li>
+				<li style="font-size: 20px">E</li>
+				<li style="font-size: 40px">F</li>
+				<li style="font-size: 60px">G</li>
+			</ul>
+		</div>
+		<div>
+			<h4>demo39<span>align-self: </span></h4>
+			<ul class="demo39">
+				<li>A</li>
+				<li>B</li>
+				<li>C</li>
+				<li>D</li>
+				<li style="font-size: 20px">E</li>
+				<li style="font-size: 40px">F</li>
+				<li style="font-size: 60px">G</li>
+			</ul>
+			<span>IE edge 下出错</span>
+		</div>
+
+		<h3 id="part2_6">order：定义项目在容器的排序(可负值)</h3>
+		<div>
+			<h4>demo40<span>order: </span></h4>
+			<ul class="demo40">
+				<li>1</li>
+				<li>5</li>
+				<li>7</li>
+				<li>3</li>
+				<li>0</li>
+				<li>-2</li>
+				<li>4</li>
+			</ul>
+		</div>
+
+	</section>
+	<!-- part2 end -->
+</section>
+
+<footer style="margin-top: 50px;padding: 40px 0;background: #333;color: #fff;text-align: center">
+	footer
+</footer>
+
+</body>
+
+<script src="http: //libs.baidu.com/jquery/1.9.0/jquery.js"></script>
+<script>
+    $(function(){
+        //锚点跳转滑动效果
+        $('a[href*=#],area[href*=#]').click(function() {
+            console.log(this.pathname)
+            if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {
+                var $target = $(this.hash);
+                $target = $target.length && $target || $('[name=' + this.hash.slice(1) + ']');
+                if ($target.length) {
+                    var targetOffset = $target.offset().top;
+                    $('html,body').animate({
+                                scrollTop:  targetOffset
+                            },500);
+                    return false;
+                }
+            }
+        });
+    })
+</script>
+
+</html>
